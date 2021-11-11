@@ -1,2 +1,15 @@
 # Computer-Scheduling-System-Simulation
-It is a single-threaded program to simulate a scheduling system of a computer.
+It is a single-threaded program to simulate a scheduling system of a computer. </br></br>
+The scheduling system is able to admit new processes to ready queue(s), select a process from ready queue to run using a particular scheduling algorithm, move the running process to a blocked queue when it has to wait for an event like I/O completion or mutex signals and put them back to ready queue(s) when the event occurs.</br></br>
+The simulated scheduling system of a computer is implemented with only one CPU, one keyboard and one disk. Each of these devices provides service to one process at a time, so scheduling is required to coordinate the processes. The scheduling system is able to work in a loop to emulate the of behavior the CPU. Each loop is called a tick. In each loop iteration, the tick is incremented by one to emulate the elapsed internal time of the CPU. </br></br>
+![image](https://user-images.githubusercontent.com/80200340/141319336-f6caa2e1-6fa5-412a-bd74-85b45c83a025.png)
+<p align="center">Figure 1: Overall work flow of your scheduler in each tick</p>
+As shown in Fig.1, the overall work flow of the scheduler in each tick can be divided into three steps:</br>
+<ul>
+<li>Step 1. At the beginning of each tick, the scheduler would check whether there are new processes to be admitted to the ready queue. If multiple processes arrive at this tick, they are enqueued in ascending order of their process IDs.</li>
+<li>Step 2. There is one block queue for each I/O device and each mutex. Processes waiting for an I/O device or a mutex are inserted into the corresponding block queue. The event handler would dispatch processes from block queues in FCFS manner to the I/O devices they are waiting for if the devices become available. If a process is done with the device, it will be re-inserted to the ready queue. Besides, the event handler would also check processes waiting for mutexes. Similar to I/O, only the first process waiting in the mutex block queue is able to lock the mutex after the mutex is unlocked by another process.</li>
+<li>Step 3. If there is no process running on the CPU, the scheduling system would dispatch a process to CPU from the ready queue according to one of the following scheduling algorithms: First-Come-First-Served (FCFS), Round Robin (RR) and Feedback Scheduling (FB). At the end of the tick, the scheduler should look ahead the service requested by the currently running process in the next tick to determine the action required. For example, if the service next tick is disk I/O, then blocking of the current process is required. If mutex operations (lock & unlock), which are assumed to have a time cost of zero tick, are encountered while looking ahead, they should be executed immediately and the scheduler will keep finding the next service which is not a mutex operation.</li>
+<li>Finally, if the process on CPU uses up its time quantum, it is preempted and placed at the end of the ready queue (RR & FB only).</li>
+</ul>
+</br>
+To make things simpler, when a process is dispatched to CPU or I/O devices, it can be kept in its current ready queue or block queue. In other word, there is no need to move the processes somewhere else.
